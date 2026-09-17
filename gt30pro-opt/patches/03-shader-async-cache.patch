@@ -1,0 +1,20 @@
+--- a/src/video_core/renderer_vulkan/vk_pipeline_cache.cpp
++++ b/src/video_core/renderer_vulkan/vk_pipeline_cache.cpp
+@@ -1,4 +1,14 @@
+ // GT30Pro shader guidance (Mali-G615 + 4x Cortex-A510 efficiency cores).
++// - Default use_asynchronous_shaders=ON, disk + driver pipeline cache ON.
++// - PSO optimization #4294 already in tree: keep pipeline warmup threads at
++// - min(4, hw_concurrency/2) so compilation lands on A510s, not the prime
++// - A715 running the emulation loop. Hard affinity needs root; use
++// - THREAD_PRIORITY_BACKGROUND + small batch yields instead.
++// - Keep enable_compute_pipelines=true for BOTW (grass/physics), but cap
++// - in-flight compiles: unbounded compute PSO spam is what causes the
++// - green-square bursts in your screenshots 2-3.
+ --- a/src/common/settings.cpp
+ +++ b/src/common/settings.cpp
+ @@ -1 +1 @@
+-// use_asynchronous_shaders default false
++// GT30Pro: default use_asynchronous_shaders=true, use_disk_shader_cache=true,
++// use_vulkan_driver_pipeline_cache=true, enable_compute_pipelines=true,
++// async_presentation=false, use_reactive_flushing=false (Android),
++// dyna_state=Disabled, vertex_input_dynamic_state=false (Android Mali-safe).
