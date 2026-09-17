@@ -1,8 +1,8 @@
 name: Build Eden GT30Pro (Mali-only, arm64-v8a)
 
 # Cloud build — no local setup needed (~40-90 min).
-# v2 (2026-09-17): fixed setup-android@v3 'tools' failure (run #1 log proof),
-# non-interactive license accept, checkout/setup-java bumped to v5.
+# v3 (2026-09-17): + host tools (glslang-tools/nasm/pkg-config, run #3 log proof),
+# + official Eden CI command verbatim (copyMainlineReleaseOutputs only).
 # Full guide: gt30pro-opt/build/CLOUD_BUILD_GUIDE_AR.md (in your package folder)
 # Required files in THIS repo (your fork):
 #   gt30pro-opt/patches/01-dynarmic-mt8350.patch
@@ -44,6 +44,15 @@ jobs:
           yes | sdkmanager --licenses > /dev/null
           sdkmanager "platforms;android-36" "ndk;28.2.13676358"
 
+      # Host C++ tools required by Eden's own CMake (verified in source):
+      # src/video_core/host_shaders/CMakeLists.txt runs
+      # find_program(glslangValidator) + FATAL_ERROR if missing.
+      # The stock runner image does not ship it -> install from Ubuntu repo.
+      - name: Install host build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y glslang-tools nasm pkg-config
+
       - name: Apply GT30Pro patches
         run: |
           git apply gt30pro-opt/patches/01-dynarmic-mt8350.patch || echo "01 skipped (context drift)"
@@ -51,17 +60,23 @@ jobs:
           git apply gt30pro-opt/patches/03-shader-async-cache.patch || echo "03 skipped (context drift)"
           git apply gt30pro-opt/patches/04-gt30pro-mali-strip.patch
 
+      # Official Eden CI builds the phone APK with the copy task only
+      # (.ci/build/android.sh: ./gradlew "copy${APK_FLAVOR}${TYPE}Outputs",
+      # defaults Mainline + Release). Mirrored verbatim: single selector.
       - name: Build mainlineRelease
         run: |
           export ANDROID_SDK_ROOT=$ANDROID_HOME
           export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/28.2.13676358
           cd src/android
-          ./gradlew :app:assembleMainlineRelease :app:copyMainlineReleaseOutputs --no-daemon
+          ./gradlew "copyMainlineReleaseOutputs" --no-daemon
+
+      - name: Locate built APKs
+        run: find src/android/app/build/outputs -name "*.apk" 2>/dev/null || true
 
       - uses: actions/upload-artifact@v4
         with:
           name: Eden-GT30Pro-Mali-arm64
           path: |
-            src/android/app/build/outputs/apk/mainline/release/*.apk
+            src/android/app/build/outputs/apk/**/*.apk
             artifacts/*.apk
             src/android/artifacts/*.apk
