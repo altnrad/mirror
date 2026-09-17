@@ -1,19 +1,16 @@
 diff --git a/src/android/app/build.gradle.kts b/src/android/app/build.gradle.kts
 --- a/src/android/app/build.gradle.kts
 +++ b/src/android/app/build.gradle.kts
-@@ -80,5 +80,5 @@
-                     listOf(
-                         "-DENABLE_QT=0", // Don't use QT
--                        "-DENABLE_WEB_SERVICE=1", // Enable web service
-+                        "-DENABLE_WEB_SERVICE=0", // GT30Pro: telemetry off
-                         "-DANDROID_ARM_NEON=true", // cryptopp requires Neon to work
-                         "-DYUZU_USE_CPM=ON",
-@@ -88,4 +88,19 @@
+@@ -88,4 +88,23 @@
                          "-DBUILD_TESTING=OFF",
                          "-DYUZU_TESTS=OFF",
                          "-DDYNARMIC_TESTS=OFF",
 +                        // GT30Pro Mali-only strip (Dimensity 8350U / Mali-G615, arm64-v8a):
 +                        // LSFG intentionally KEPT (user uses frame-gen successfully).
++                        // NOTE: ENABLE_WEB_SERVICE stays ON: the Android JNI lib links
++                        // cpp-jwt::cpp-jwt unconditionally (jni/CMakeLists.txt:31), and the
++                        // target only exists when ENABLE_WEB_SERVICE or ENABLE_UPDATE_CHECKER
++                        // is ON. Disabling it breaks configure (run #4 log proof).
 +                        "-DENABLE_UPDATE_CHECKER=OFF",
 +                        "-DENABLE_RESHADE=OFF", // strip ReShade FX post-processing
 +                        "-DYUZU_DOWNLOAD_ANDROID_VVL=OFF", // strip Khronos validation .so from APK
