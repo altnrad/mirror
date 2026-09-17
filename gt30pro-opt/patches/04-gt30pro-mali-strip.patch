@@ -1,0 +1,30 @@
+diff --git a/src/android/app/build.gradle.kts b/src/android/app/build.gradle.kts
+--- a/src/android/app/build.gradle.kts
++++ b/src/android/app/build.gradle.kts
+@@ -80,5 +80,5 @@
+                     listOf(
+                         "-DENABLE_QT=0", // Don't use QT
+-                        "-DENABLE_WEB_SERVICE=1", // Enable web service
++                        "-DENABLE_WEB_SERVICE=0", // GT30Pro: telemetry off
+                         "-DANDROID_ARM_NEON=true", // cryptopp requires Neon to work
+                         "-DYUZU_USE_CPM=ON",
+@@ -88,4 +88,19 @@
+                         "-DBUILD_TESTING=OFF",
+                         "-DYUZU_TESTS=OFF",
+                         "-DDYNARMIC_TESTS=OFF",
++                        // GT30Pro Mali-only strip (Dimensity 8350U / Mali-G615, arm64-v8a):
++                        // LSFG intentionally KEPT (user uses frame-gen successfully).
++                        "-DENABLE_UPDATE_CHECKER=OFF",
++                        "-DENABLE_RESHADE=OFF", // strip ReShade FX post-processing
++                        "-DYUZU_DOWNLOAD_ANDROID_VVL=OFF", // strip Khronos validation .so from APK
++                        "-DYUZU_LEGACY=OFF", // no Snapdragon-865 compat fallbacks
++                        "-DENABLE_OPENGL=OFF", // Vulkan only (already forced OFF on Android)
++                        "-DENABLE_LTO=ON", // real LTO option (externals/cmake-modules/UseLTO.cmake)
++                        "-DYUZU_BUILD_PRESET=armv9", // official preset -> -march=armv9-a
++                        // NOTE: no -mcpu=cortex-a715 here: it conflicts with the preset's
++                        // -march. -mtune is the safe extra knob; NDK r28 clang honors it.
++                        "-DCMAKE_CXX_FLAGS=-O3 -mtune=cortex-a715 -ffunction-sections -fdata-sections",
++                        "-DCMAKE_C_FLAGS=-O3 -mtune=cortex-a715 -ffunction-sections -fdata-sections",
++                        "-DCMAKE_EXE_LINKER_FLAGS=-Wl,--gc-sections -Wl,--icf=all -s",
++                        "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,--gc-sections -Wl,--icf=all -s",
+                         *extraCMakeArgs.toTypedArray()

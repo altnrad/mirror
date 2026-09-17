@@ -1,0 +1,11 @@
+diff --git a/gt30pro-notes/03-shader-async-cache.md b/gt30pro-notes/03-shader-async-cache.md
+new file mode 100644
+index 0000000..e69de29
+--- /dev/null
++++ b/gt30pro-notes/03-shader-async-cache.md
+@@ -0,0 +1,5 @@
++# GT30Pro shader notes (4x Cortex-A510 efficiency cores)
++- Default ON: use_asynchronous_shaders, disk shader cache, driver pipeline cache.
++- Cap compute PSO warmup threads at min(4, hw/2) so compiles land on A510s, not the prime A715.
++- Hard thread affinity needs root; use background priority + small batches instead.
++- BOTW: enable_compute_pipelines=true, but unbounded compute PSO spam causes green-square bursts.

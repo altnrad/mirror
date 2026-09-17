@@ -1,0 +1,12 @@
+diff --git a/gt30pro-notes/02-vulkan-mali-tbr.md b/gt30pro-notes/02-vulkan-mali-tbr.md
+new file mode 100644
+index 0000000..e69de29
+--- /dev/null
++++ b/gt30pro-notes/02-vulkan-mali-tbr.md
+@@ -0,0 +1,6 @@
++# GT30Pro Mali-G615 TBR notes (Valhall 5, Tile-Based Rendering)
++- Keep depth/color in tile SRAM: prefer D24 over D32, depth storeOp=DONT_CARE when unread.
++- Merge color+resolve into one subpass; avoid MSAA and sample shading on Mali.
++- Turnip is Mesa/Linux-only: there is nothing to disable on Android Mali (closed ARM driver).
++- fa4e7c69 dropped the depth-comparison sampler fallback: if BOTW Link stays black,
++- force the shadow sampler to CompareOp LessOrEqual on D24, or use a "low shadows" game mod.

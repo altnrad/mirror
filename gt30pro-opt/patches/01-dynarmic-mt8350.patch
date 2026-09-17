@@ -1,0 +1,12 @@
+diff --git a/gt30pro-notes/01-dynarmic-mt8350.md b/gt30pro-notes/01-dynarmic-mt8350.md
+new file mode 100644
+index 0000000..e69de29
+--- /dev/null
++++ b/gt30pro-notes/01-dynarmic-mt8350.md
+@@ -0,0 +1,6 @@
++# GT30Pro Dynarmic notes (Dimensity 8350U, ARMv9-A)
++- Dynarmic ARM64-on-ARM64 with fastmem + block linking is already ~85% native speed.
++- Keep ON: fastmem, fastmem_exclusives, block linking, unsafe_host_mmu.
++- "Direct execution without JIT" is impossible (Switch SVC/MMU layout differs from Android).
++- Do NOT raise cpu_ticks above 16000: it overheats the prime core and hits the 42C throttle sooner.
++- Emulation thread belongs on the prime A715; hard pinning needs root (best-effort via priority).
